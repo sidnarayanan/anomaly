@@ -1,0 +1,11 @@
+train_dataset_pattern: /data/t3home000/bmaier/anomaly/train_*.npz 
+test_dataset_pattern: /data/t3home000/bmaier/anomaly/test_*.npz 
+output: /local/anomaly/results/test/
+n_epochs: 50
+n_features: 16
+n_latent: 2
+n_hidden: [6]
+batch_size: 512 
+lr: 0.001
+lr_decay: 0.1
+plot: /home/snarayan/public_html/figs/anomaly/test/

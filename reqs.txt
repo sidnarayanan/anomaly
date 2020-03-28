@@ -1,0 +1,9 @@
+numpy
+torch
+transformers
+pyyaml
+tqdm
+loguru
+ipython
+torchsummary
+matplotlib
