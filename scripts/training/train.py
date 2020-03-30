@@ -9,14 +9,16 @@ p.add_args(
     '--n_hidden', ('--n_latent', p.INT), ('--n_features', p.INT),
     ('--batch_size', p.INT),
     ('--lr', {'type': float}),
-    ('--lr_schedule', p.STORE_TRUE), '--plot',
+    ('--lr_schedule', p.STORE_TRUE), 
+    ('--variational', p.STORE_TRUE), 
+    '--plot',
 )
 config = p.parse_args()
 
 
 from anomaly.data import FeatureDataset, DataLoader
-from anomaly.model import AutoEncoder 
-from anomaly.plot import RecoPlot
+from anomaly.model import AE, VAE
+from anomaly.plot import RecoPlot, LatentPlot
 
 from tqdm import tqdm, trange
 from loguru import logger
@@ -42,7 +44,7 @@ if __name__ == '__main__':
     test_dl = DataLoader(test_ds, batch_size=config.batch_size)
 
     logger.info(f'Building model')
-    model = AutoEncoder(config)
+    model = (VAE if config.variational else AE)(config)
     model = model.to(device)
 
     opt = torch.optim.Adam(model.parameters(), lr=config.lr)
@@ -61,6 +63,7 @@ if __name__ == '__main__':
     loss_fn = torch.nn.MSELoss()
 
     plot = RecoPlot(config)
+    lplot = LatentPlot(config)
 
     for e in range(config.n_epochs):
         logger.info(f'Epoch {e}: Start')
@@ -75,18 +78,29 @@ if __name__ == '__main__':
             opt.zero_grad()
             xhat = model(x)
             loss = loss_fn(x, xhat) 
-            train_avg_loss_tensor += loss 
             loss.backward()
 
             # torch.nn.utils.clip_grad_norm_(model.parameters(), 5)
             opt.step()
-            plot.add_values(x, xhat)
 
-        print(t2n(loss), t2n(train_avg_loss_tensor), n_batch)
+        model.eval()
+        train_avg_loss_tensor = 0
+        for n_batch, x in enumerate(tqdm(train_dl, total=int(len(train_ds)/config.batch_size), leave=False)):
+            x = torch.Tensor(x).to(device)
+            
+            with torch.no_grad():
+                xhat = model(x)
+                loss = loss_fn(x, xhat) 
+                train_avg_loss_tensor += loss 
+            plot.add_values(x, xhat)
+            lplot.add_values(model.encode(x))
         train_avg_loss_tensor /= n_batch
         train_avg_loss = t2n(train_avg_loss_tensor)
-        plot.plot('_train')
-        plot.reset()
+
+        if e % 5 == 4:
+            plot.plot('_train')
+        lplot.plot('_train')
+        plot.reset(); lplot.reset()
 
         model.eval()
         test_avg_loss_tensor = 0
@@ -97,14 +111,17 @@ if __name__ == '__main__':
                 xhat = model(x)
                 loss = loss_fn(x, xhat) 
                 test_avg_loss_tensor += loss 
+                lplot.add_values(model.encode(x))
             plot.add_values(x, xhat)
 
-        print(t2n(loss), t2n(test_avg_loss_tensor), n_batch)
         test_avg_loss_tensor /= n_batch
         test_avg_loss = t2n(test_avg_loss_tensor)
         lr.step(test_avg_loss_tensor)
-        plot.plot('_test')
-        plot.reset()
+
+        if e % 5 == 4:
+            plot.plot('_test')
+        lplot.plot('_test')
+        plot.reset(); lplot.reset()
 
         # plot_path = f'{config.plot}/resolution_{e:03d}'
         # ress = met.plot(plot_path)

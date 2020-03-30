@@ -5,7 +5,7 @@ n_epochs: 50
 n_features: 16
 n_latent: 2
 n_hidden: [6]
-batch_size: 512 
-lr: 0.001
+batch_size: 4096 
+lr: 0.005
 lr_decay: 0.1
 plot: /home/snarayan/public_html/figs/anomaly/test/
