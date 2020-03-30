@@ -9,3 +9,4 @@ batch_size: 4096
 lr: 0.005
 lr_decay: 0.1
 plot: /home/snarayan/public_html/figs/anomaly/v0/
+variational: True

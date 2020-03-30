@@ -65,12 +65,12 @@ class ArgumentParser(_AP):
             for k,v in payload.items():
                 setattr(args, k, v)
                 logger.debug(f'Config {conf} : {k} -> {v}')
-        for k in vars(cmd_line_args):
-            v = getattr(cmd_line_args, k)
-            if v is None:
-                continue
-            setattr(args, k, v)
-            logger.debug(f'Command line : {k} -> {v}')
+        # for k in vars(cmd_line_args):
+        #     v = getattr(cmd_line_args, k)
+        #     if v is None:
+        #         continue
+        #     setattr(args, k, v)
+        #     logger.debug(f'Command line : {k} -> {v}')
         self.args = args
 
         return args 

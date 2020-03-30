@@ -11,7 +11,7 @@ class AE(nn.Module):
         self.args = args
 
         encoder_sizes = [args.n_features] + args.n_hidden + [args.n_latent * self._latent_factor]
-        decoder_sizes = [args.n_latent] + args.n_hidden + [args.n_features]
+        decoder_sizes = [args.n_latent] + args.n_hidden[::-1] + [args.n_features]
 
         self.encoder_layers = nn.ModuleList([
             nn.Linear(i, o) for i, o in zip(encoder_sizes[:-1], encoder_sizes[1:])
@@ -19,12 +19,13 @@ class AE(nn.Module):
         self.decoder_layers = nn.ModuleList([
             nn.Linear(i, o) for i, o in zip(decoder_sizes[:-1], decoder_sizes[1:])
         ])
+        self.act = nn.ReLU() # defining this up here makes it show up in torchsummary
 
     def encode(self, x):
         h = x
         for l in self.encoder_layers[:-1]:
             h = l(h)
-            h = torch.relu(h)
+            h = self.act(h)
         h = self.encoder_layers[-1](h)
         return h
 
@@ -32,7 +33,7 @@ class AE(nn.Module):
         h = x
         for l in self.decoder_layers[:-1]:
             h = l(h)
-            h = torch.relu(h)
+            h = self.act(h)
         h = self.decoder_layers[-1](h)
         return h
 

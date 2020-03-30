@@ -102,7 +102,7 @@ if __name__ == '__main__':
 
         if e % 5 == 4:
             plot.plot('_train')
-        lplot.plot('_train')
+        lplot.plot(f'_{e}_train')
         plot.reset(); lplot.reset()
 
         model.eval()
@@ -123,7 +123,7 @@ if __name__ == '__main__':
 
         if e % 5 == 4:
             plot.plot('_test')
-        lplot.plot('_test')
+        lplot.plot(f'_{e}_test')
         plot.reset(); lplot.reset()
 
         # plot_path = f'{config.plot}/resolution_{e:03d}'
