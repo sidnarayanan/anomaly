@@ -26,6 +26,7 @@ import torch
 from torch import nn 
 from torch.utils.data import RandomSampler
 import os
+import numpy as np
 from torchsummary import summary
 
 
@@ -64,6 +65,8 @@ if __name__ == '__main__':
 
     plot = RecoPlot(config)
     lplot = LatentPlot(config)
+
+    best_loss = np.inf
 
     for e in range(config.n_epochs):
         logger.info(f'Epoch {e}: Start')
@@ -143,3 +146,6 @@ if __name__ == '__main__':
         # logger.info(f'Epoch {e}: MET error = {puppi_res[0]} +/- {puppi_res[1]}') 
 
         torch.save(model.state_dict(), snapshot.get_path(f'model_weights_epoch{e}.pt'))
+        if test_avg_loss < best_loss:
+            best_loss = test_avg_loss
+            torch.save(model.state_dict(), snapshot.get_path(f'model_weights_best.pt'))
