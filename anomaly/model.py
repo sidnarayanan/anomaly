@@ -24,7 +24,7 @@ class AE(nn.Module):
         h = x
         for l in self.encoder_layers[:-1]:
             h = l(h)
-            h = torch.tanh(h)
+            h = torch.relu(h)
         h = self.encoder_layers[-1](h)
         return h
 
@@ -32,7 +32,7 @@ class AE(nn.Module):
         h = x
         for l in self.decoder_layers[:-1]:
             h = l(h)
-            h = torch.tanh(h)
+            h = torch.relu(h)
         h = self.decoder_layers[-1](h)
         return h
 
