@@ -1,0 +1,9 @@
+test_dataset_patterns: [/data/t3home000/bmaier/anomaly/test_TT*.npz, /data/t3home000/bmaier/anomaly/test_WJets*.npz, /data/t3home000/bmaier/anomaly/test_WZ*.npz] 
+output: /local/anomaly/results/v0/2020_03_29_22_18_59/
+n_epochs: 50
+n_features: 16
+n_latent: 2
+n_hidden: [12, 6]
+batch_size: 4096 
+plot: /home/snarayan/public_html/figs/anomaly/v0/
+variational: True

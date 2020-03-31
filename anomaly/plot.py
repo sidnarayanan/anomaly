@@ -75,3 +75,47 @@ class LatentPlot(_Plot):
         for ext in ['pdf', 'png']:
             plt.savefig(f'{self.config.plot}/latent_{suffix}.{ext}')
         self.reset()
+
+
+class MulticlassLatentPlot(_Plot):
+    _colors = [getattr(mpl.cm, c) for c in ['Reds', 'Greens', 'Blues', 'Purples', 'Greys']]
+    def reset(self):
+        self.latents = {} 
+
+    def add_values(self, latent, key):
+        if key not in self.latents:
+            self.latents[key] = []
+        self.latents[key].append(t2n(latent))
+
+    def plot(self, suffix='', ranges=None):
+        plt.clf() 
+        for i,(k,v) in enumerate(self.latents.items()):
+            v = np.concatenate(v, axis=0)
+            if v.shape[1] > 2:
+                v = PCA(n_components=2).fit_transform(v)
+            if ranges is None:
+                ranges = (self._get_range(v[:,0]), self._get_range(v[:,1]))
+                print(ranges)
+            plt.hist2d(v[:,0], v[:,1], range=ranges, bins=50, #cmin=1,
+                       norm=mpl.colors.LogNorm(),
+                       density=True,
+                       cmap=self._colors[i], alpha=0.6,
+                       label=k
+                    )
+        for ext in ['pdf', 'png']:
+            plt.savefig(f'{self.config.plot}/multiclass_latent_{suffix}.{ext}')
+
+        for i,(k,v) in enumerate(self.latents.items()):
+            plt.clf()
+            v = np.concatenate(v, axis=0)
+            if v.shape[1] > 2:
+                v = PCA(n_components=2).fit_transform(v)
+            plt.hist2d(v[:,0], v[:,1], range=ranges, bins=50, #cmin=1,
+                       norm=mpl.colors.LogNorm(),
+                       density=True,
+                       cmap=self._colors[i], 
+                       label=k
+                    )
+            for ext in ['pdf', 'png']:
+                plt.savefig(f'{self.config.plot}/multiclass_latent_{k}_{suffix}.{ext}')
+        self.reset()

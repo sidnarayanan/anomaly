@@ -1,5 +1,5 @@
-train_dataset_pattern: /data/t3home000/bmaier/anomaly/train_*.npz 
-test_dataset_pattern: /data/t3home000/bmaier/anomaly/test_*.npz 
+train_dataset_pattern: /data/t3home000/bmaier/anomaly/train_TT*.npz 
+test_dataset_pattern: /data/t3home000/bmaier/anomaly/test_TT*.npz 
 output: /local/anomaly/results/v0/
 n_epochs: 50
 n_features: 16

@@ -38,8 +38,8 @@ if __name__ == '__main__':
     config.device = device
 
     logger.info(f'Reading dataset at {config.train_dataset_pattern}')
-    train_ds = FeatureDataset(config.test_dataset_pattern)
-    test_ds = FeatureDataset(config.train_dataset_pattern)
+    train_ds = FeatureDataset(config.train_dataset_pattern)
+    test_ds = FeatureDataset(config.test_dataset_pattern)
     # sampler = RandomSampler(train_ds)
     train_dl = DataLoader(train_ds, batch_size=config.batch_size)
     test_dl = DataLoader(test_ds, batch_size=config.batch_size)
