@@ -7,7 +7,7 @@ from tqdm import tqdm
 
 
 class FeatureDataset(IterableDataset):
-    def __init__(self, pattern):
+    def __init__(self, pattern, mu=None, sigma=None):
         self._files = glob(pattern)
         self._len = sum([np.load(f)['x'].shape[0] for f in self._files])
         # data = np.load(self._files[0])
@@ -15,12 +15,10 @@ class FeatureDataset(IterableDataset):
         # print(np.sum(np.isnan(X)) / np.sum(np.ones_like(X)))
         # X[np.isnan(X)] = 0
         # self.X = X
+        self.mu, self.sigma = mu, sigma 
 
     def __len__(self):
         return self._len
-
-    # def __getitem__(self, i):
-    #     return self.X[i, :]
 
     def __iter__(self):
         np.random.shuffle(self._files)
@@ -31,6 +29,10 @@ class FeatureDataset(IterableDataset):
             if bad_evts.astype(int).sum() > 0:
                 logger.debug(f'{f} {bad_evts.sum()}')
             X = X[~bad_evts, :]
+            if self.mu is None:
+                self.mu = np.mean(X, axis=0)
+                self.sigma = np.std(X, axis=0)
+            X = (X - self.mu) / self.sigma
             idx = np.arange(X.shape[0])
             np.random.shuffle(idx)
             for i in idx:

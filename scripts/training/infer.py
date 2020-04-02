@@ -32,7 +32,9 @@ if __name__ == '__main__':
     config.device = device
 
     logger.info(f'Reading dataset at {config.test_dataset_patterns}')
-    test_dss = [FeatureDataset(p) for p in config.test_dataset_patterns]
+    stats = torch.load(f'{config.output}/feature_stats.pt')
+    mu, sigma = stats['mu'], stats['sigma']
+    test_dss = [FeatureDataset(p, mu, sigma) for p in config.test_dataset_patterns]
     test_dls = [DataLoader(test_ds, batch_size=config.batch_size) for test_ds in test_dss]
 
     logger.info(f'Building model')
@@ -48,11 +50,11 @@ if __name__ == '__main__':
 
     model.eval()
     for pattern, dl, ds in zip(config.test_dataset_patterns, test_dls, test_dss):
-        label = pattern.split('/')[-1].split('_')[1].split('*')[0]
+        label = pattern.split('/')[-1].split('_')[0]
         for n_batch, x in enumerate(tqdm(dl, total=int(len(ds)/config.batch_size), leave=False)):
             x = torch.Tensor(x).to(device)
             with torch.no_grad():
                 xhat = model(x)
                 plot.add_values(model.encode(x), label)
 
-    plot.plot(ranges=((-20, 100), (-4, 2)))
+    plot.plot(ranges=((-40, 80), (-10, 10)))

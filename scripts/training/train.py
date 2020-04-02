@@ -86,6 +86,8 @@ if __name__ == '__main__':
             # torch.nn.utils.clip_grad_norm_(model.parameters(), 5)
             opt.step()
 
+        test_ds.mu, test_ds.sigma = train_ds.mu, train_ds.sigma
+
         model.eval()
         train_avg_loss_tensor = 0
         for n_batch, x in enumerate(tqdm(train_dl, total=int(len(train_ds)/config.batch_size), leave=False)):
@@ -149,3 +151,4 @@ if __name__ == '__main__':
         if test_avg_loss < best_loss:
             best_loss = test_avg_loss
             torch.save(model.state_dict(), snapshot.get_path(f'model_weights_best.pt'))
+            torch.save({'mu': train_ds.mu, 'sigma': train_ds.sigma}, snapshot.get_path(f'feature_stats.pt')) 

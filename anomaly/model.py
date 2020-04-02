@@ -13,6 +13,8 @@ class AE(nn.Module):
         encoder_sizes = [args.n_features] + args.n_hidden + [args.n_latent * self._latent_factor]
         decoder_sizes = [args.n_latent] + args.n_hidden[::-1] + [args.n_features]
 
+        self.input_bn = nn.BatchNorm1d(args.n_features)
+
         self.encoder_layers = nn.ModuleList([
             nn.Linear(i, o) for i, o in zip(encoder_sizes[:-1], encoder_sizes[1:])
         ])
@@ -23,6 +25,7 @@ class AE(nn.Module):
 
     def encode(self, x):
         h = x
+        # h = self.input_bn(h)
         for l in self.encoder_layers[:-1]:
             h = l(h)
             h = self.act(h)

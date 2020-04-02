@@ -1,0 +1,12 @@
+train_dataset_pattern: /data/t3home000/bmaier/anomaly_allecfs/*train*.npz 
+test_dataset_pattern: /data/t3home000/bmaier/anomaly_allecfs/*test*.npz 
+output: /local/anomaly/results/v2_ae/
+n_epochs: 50
+n_features: 48
+n_latent: 3
+n_hidden: [32, 16, 8]
+batch_size: 4096 
+lr: 0.005
+lr_decay: 0.1
+plot: /home/snarayan/public_html/figs/anomaly/v2_ae/
+#variational: True

@@ -8,3 +8,5 @@ ipython
 torchsummary
 matplotlib
 sklearn
+umap-learn
+MulticoreTSNE

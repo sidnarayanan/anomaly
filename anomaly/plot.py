@@ -4,6 +4,9 @@ import numpy as np
 from .utils import t2n
 import os 
 from sklearn.decomposition import PCA
+from MulticoreTSNE import MulticoreTSNE as TSNE
+from umap import UMAP
+
 
 EPS = np.finfo(float).eps 
 
@@ -64,8 +67,10 @@ class LatentPlot(_Plot):
     def plot(self, suffix=''):
         x = np.concatenate(self.latents, axis=0)
 
+        dimred = PCA(n_components=2)
+        #dimred = TSNE(n_components=2)
         if x.shape[1] > 2:
-            x = PCA(n_components=2).fit_transform(x)
+            x = dimred.fit_transform(x)
 
         plt.clf() 
         ranges = (self._get_range(x[:,0]), self._get_range(x[:,1]))
@@ -79,6 +84,7 @@ class LatentPlot(_Plot):
 
 class MulticlassLatentPlot(_Plot):
     _colors = [getattr(mpl.cm, c) for c in ['Reds', 'Greens', 'Blues', 'Purples', 'Greys']]
+    _colors_1d = ['r', 'g', 'b', 'k']
     def reset(self):
         self.latents = {} 
 
@@ -89,27 +95,60 @@ class MulticlassLatentPlot(_Plot):
 
     def plot(self, suffix='', ranges=None):
         plt.clf() 
+        dimred = PCA(n_components=2)
+        #dimred = TSNE(n_components=2, n_jobs=-1, verbose=3)
+        #dimred = UMAP(n_components=2, verbose=3)
         for i,(k,v) in enumerate(self.latents.items()):
             v = np.concatenate(v, axis=0)
+            self.latents[k] = v
+        all_data = np.concatenate(list(self.latents.values()), axis=0)
+        all_y = np.concatenate([i*np.ones(shape=v.shape[0]) for i,v in enumerate(self.latents.values())], axis=0)
+        mask = np.random.binomial(1, 0.05, size=all_y.shape).astype(bool)
+        print(all_data.shape, all_y.shape, mask.shape)
+        all_data, all_y = all_data[mask,:], all_y[mask]
+        if all_data.shape[1] > 2:
+            dimred.fit(all_data)
+
+        for j in range(all_data.shape[1]):
+            plt.clf()
+            ranges_1d = None
+            for i,(k,v) in enumerate(self.latents.items()):
+                v = v[:,j]
+                if ranges_1d is None:
+                    ranges_1d = self._get_range(v)
+                plt.hist(v, range=ranges_1d, bins=50, #cmin=1,
+                         density=True,
+                         color=self._colors_1d[i], #alpha=0,
+                         linewidth=2,
+                         histtype='step',
+                         label=k
+                        )
+            plt.legend()
+            for ext in ['pdf', 'png']:
+                plt.savefig(f'{self.config.plot}/multiclass_latent_dim{j}_{suffix}.{ext}')
+
+
+        alpha = 1
+        plt.clf()
+        for i,(k,v) in enumerate(self.latents.items()):
             if v.shape[1] > 2:
-                v = PCA(n_components=2).fit_transform(v)
+                v = dimred.transform(v)
+                self.latents[k] = v
             if ranges is None:
                 ranges = (self._get_range(v[:,0]), self._get_range(v[:,1]))
                 print(ranges)
             plt.hist2d(v[:,0], v[:,1], range=ranges, bins=50, #cmin=1,
                        norm=mpl.colors.LogNorm(),
                        density=True,
-                       cmap=self._colors[i], alpha=0.6,
+                       cmap=self._colors[i], alpha=alpha,
                        label=k
                     )
+            alpha *= 0.4
         for ext in ['pdf', 'png']:
             plt.savefig(f'{self.config.plot}/multiclass_latent_{suffix}.{ext}')
-
+        
         for i,(k,v) in enumerate(self.latents.items()):
             plt.clf()
-            v = np.concatenate(v, axis=0)
-            if v.shape[1] > 2:
-                v = PCA(n_components=2).fit_transform(v)
             plt.hist2d(v[:,0], v[:,1], range=ranges, bins=50, #cmin=1,
                        norm=mpl.colors.LogNorm(),
                        density=True,

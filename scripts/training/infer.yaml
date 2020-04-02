@@ -1,9 +1,11 @@
-test_dataset_patterns: [/data/t3home000/bmaier/anomaly/test_TT*.npz, /data/t3home000/bmaier/anomaly/test_WJets*.npz, /data/t3home000/bmaier/anomaly/test_WZ*.npz] 
-output: /local/anomaly/results/v0/2020_03_29_22_18_59/
+test_dataset_patterns: [/data/t3home000/bmaier/anomaly_allecfs/TTbar_test*.npz, /data/t3home000/bmaier/anomaly_allecfs/WJets_test*.npz, /data/t3home000/bmaier/anomaly_allecfs/WZ_test*.npz, /data/t3home000/bmaier/anomaly_allecfs/SVJ_test*.npz]
+#test_dataset_patterns: [/data/t3home000/bmaier/anomaly/test_TT*.npz, /data/t3home000/bmaier/anomaly/test_WJets*.npz, /data/t3home000/bmaier/anomaly/test_WZ*.npz] 
+#test_dataset_patterns: [/data/t3home000/bmaier/anomaly/test_TT*.npz, /data/t3home000/bmaier/anomaly/test_WJets*.npz] 
+output: /local/anomaly/results/v2_ae/2020_04_01_22_06_16/ 
 n_epochs: 50
-n_features: 16
-n_latent: 2
-n_hidden: [12, 6]
+n_features: 48
+n_latent: 3
+n_hidden: [32, 16, 8]
 batch_size: 4096 
-plot: /home/snarayan/public_html/figs/anomaly/v0/
-variational: True
+plot: /home/snarayan/public_html/figs/anomaly/v2_ae/
+#variational: True
