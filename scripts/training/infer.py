@@ -15,7 +15,7 @@ config = p.parse_args()
 
 from anomaly.data import FeatureDataset, DataLoader
 from anomaly.model import AE, VAE
-from anomaly.plot import MulticlassLatentPlot
+from anomaly.plot import * 
 
 from tqdm import tqdm, trange
 from loguru import logger
@@ -47,6 +47,7 @@ if __name__ == '__main__':
 
     summary(model, input_size=(config.n_features,))
     plot = MulticlassLatentPlot(config)
+    rplot = MulticlassRecoPlot(config)
 
     model.eval()
     for pattern, dl, ds in zip(config.test_dataset_patterns, test_dls, test_dss):
@@ -56,5 +57,7 @@ if __name__ == '__main__':
             with torch.no_grad():
                 xhat = model(x)
                 plot.add_values(model.encode(x), label)
+                rplot.add_values(x, xhat, label)
 
-    plot.plot(ranges=((-40, 80), (-10, 10)))
+    plot.plot(ranges=((-50, 100), (-10, 10)))
+    rplot.plot()
